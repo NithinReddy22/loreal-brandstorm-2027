@@ -63,15 +63,15 @@
 **Visual:** Speaker 3 demonstrates the live system on an engineering laptop connected to the OptiChroma prototype and phone. Continuous live screen recording.
 
 **Speaker 3 (Meera) — [LEARNING AGILITY & CLIFFHANGER DEMO]:**
-> *"Hardware standardization requires transparent, explainable software. We validated our pipeline across 51 automated unit tests covering edge cases, numerical stability, and diverse skin phototypes.*
+> *"Hardware standardization unlocks trustworthy, explainable Clinical AI. We validated our pipeline across 59 automated unit tests covering edge cases, numerical stability, and diverse skin phototypes.*
 > 
 > *Watch this live:*
 > 
-> *First, an unpolarized capture — our Tenengrad quality gate instantly flags 4.6% specular clipping and **REJECTS** the capture before it can mislead a clinician.*
+> *First, an unpolarized capture — our Tenengrad quality gate instantly flags 4.6% specular clipping and **REJECTS** the capture before it can mislead clinicians or confuse AI.*
 > 
-> *Now, we attach OptiChroma: focus climbs past threshold, saturation drops to 0.00%, and the capture is **VERIFIED** in 300 milliseconds.*
+> *Now, we attach OptiChroma: focus climbs past threshold, saturation drops to 0.00%, and our Edge AI automatically extracts the lesion boundary, computing calibrated area in square millimeters.*
 > 
-> *Here is the cliffhanger: our **Chromatic Healing Trajectory**. By computing Relative Chromatic Contrast against adjacent healthy skin, we track objective erythema resolution over 28 days of La Roche-Posay soothing therapy — from an acute flare down to 98% resolution. No black box AI. Pure, reproducible visual telemetry."*
+> *Here is the cliffhanger: our **Chromatic Healing Trajectory**. By computing Relative Chromatic Contrast against adjacent healthy skin, we track objective erythema resolution over 28 days of La Roche-Posay soothing therapy — from an acute flare down to 98% resolution. No black box hallucinations. Pure, reproducible optical AI."*
 
 ---
 

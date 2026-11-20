@@ -164,8 +164,8 @@ def test_render_side_by_side_comparison(sharp_image):
     
     assert canvas is not None
     assert isinstance(canvas, np.ndarray)
-    # Check that canvas has height = 300 + 35 (banner) = 335
-    assert canvas.shape[0] == 335
+    # Check that canvas has height = 300 + 118 (clinical header, sub-banner, and scale bar footer) = 418
+    assert canvas.shape[0] == 418
     # Width should be 2 * 300 + 4 (separator) = 604
     assert canvas.shape[1] == 604
     assert canvas.shape[2] == 3

@@ -1,13 +1,13 @@
 {
   "report_type": "La Roche-Posay OptiChroma Visual Documentation Record",
   "version": "2.4.0 (MVP)",
-  "record_id": "006ccc94-62cf-4f63-9c6d-0bdd9eb50f44",
-  "created_at": "2026-11-20T10:11:31.653699+00:00",
+  "record_id": "b3b4088a-c38f-4249-bc5c-b8942f98fb0b",
+  "created_at": "2026-11-20T10:29:26.538434+00:00",
   "patient_pseudonym": "ANON-PT-4091",
   "anatomical_location": "Right Volar Forearm",
   "has_baseline": true,
   "baseline_metadata": {
-    "timestamp": "2026-11-20T10:11:31.661057+00:00",
+    "timestamp": "2026-11-20T10:29:26.550743+00:00",
     "device_model": "Google Pixel 7 (Reference Enclosure)",
     "acquisition_mode": "TIER2_JPEG",
     "iso": 100,
@@ -28,7 +28,7 @@
   "followup_count": 4,
   "followup_metadata": [
     {
-      "timestamp": "2026-11-20T10:11:31.684266+00:00",
+      "timestamp": "2026-11-20T10:29:26.583511+00:00",
       "device_model": "Google Pixel 7 (Reference Enclosure)",
       "acquisition_mode": "TIER2_JPEG",
       "iso": 100,
@@ -36,7 +36,7 @@
       "notes": "Day 7: Initiated La Roche-Posay Cicaplast Baume B5+ regimen; early erythema softening."
     },
     {
-      "timestamp": "2026-11-20T10:11:31.705618+00:00",
+      "timestamp": "2026-11-20T10:29:26.615735+00:00",
       "device_model": "Google Pixel 7 (Reference Enclosure)",
       "acquisition_mode": "TIER2_JPEG",
       "iso": 100,
@@ -44,7 +44,7 @@
       "notes": "Day 14: Substantial reduction in peripheral redness; patient reports pruritus resolved."
     },
     {
-      "timestamp": "2026-11-20T10:11:31.727399+00:00",
+      "timestamp": "2026-11-20T10:29:26.646917+00:00",
       "device_model": "Google Pixel 7 (Reference Enclosure)",
       "acquisition_mode": "TIER2_JPEG",
       "iso": 100,
@@ -52,7 +52,7 @@
       "notes": "Day 21: Lesion boundary contracted; minimal residual pink chromaticity."
     },
     {
-      "timestamp": "2026-11-20T10:11:31.749649+00:00",
+      "timestamp": "2026-11-20T10:29:26.680032+00:00",
       "device_model": "Google Pixel 7 (Reference Enclosure)",
       "acquisition_mode": "TIER2_JPEG",
       "iso": 100,
@@ -63,9 +63,9 @@
   "patient_notes": [],
   "clinician_annotations": [
     {
-      "annotation_id": "b54d1757-5c26-47ec-b5b9-0befd1f09d40",
+      "annotation_id": "14eae4e1-2a55-482c-a11a-2aebdb431c80",
       "clinician_id": "PHARM-PARIS-042",
-      "timestamp": "2026-11-20T10:11:31.763566+00:00",
+      "timestamp": "2026-11-20T10:29:26.698580+00:00",
       "comment": "Patient completed 28-day soothing balm regimen. Objective Chromatic Healing Trajectory demonstrates 98.4% erythema contrast attenuation.",
       "request_recapture": false
     }

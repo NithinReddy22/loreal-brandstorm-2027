@@ -29,6 +29,7 @@ import cv2
 
 from optichroma_v2_4_mvp import SkinObservationRecord, CaptureMetadata, OptiChromaResearchModule
 from optichroma_v2_3_core import OptiChromaCoreV2_3
+from optichroma_ai import OptiChromaEdgeAI
 
 # Initialize Flask application with explicit template and static directories
 app = Flask(
@@ -48,6 +49,7 @@ active_record = SkinObservationRecord(
 )
 core_engine = OptiChromaCoreV2_3()
 research_module = OptiChromaResearchModule()
+edge_ai = OptiChromaEdgeAI()
 
 # Track session days relative to baseline
 session_day_offsets: List[int] = [0]
@@ -513,6 +515,74 @@ def analyze_research():
         "glcm": glcm_res,
         "perilesional_ref_box": perilesional_skin_ref,
         "gray_calib_patch_box": gray_patch
+    })
+
+
+@app.route("/api/ai/segment", methods=["POST"])
+def ai_segment_lesion():
+    """
+    Explainable Edge AI: Extracts lesion contour, boundary box, circularity,
+    and area in mm2 (calibrated against 35mm optical standoff and 25mm FOV).
+    """
+    data = request.get_json() or {}
+    img_bgr = decode_image_payload(data.get("image", ""))
+    if img_bgr is None:
+        return jsonify({"error": "No image loaded."}), 400
+
+    seg_result = edge_ai.segment_lesion_contour(img_bgr)
+    if not seg_result.get("success", False):
+        return jsonify(seg_result), 400
+
+    # Render visual AI overlay
+    overlay_bgr = edge_ai.render_ai_overlay(img_bgr, seg_result)
+    _, buffer = cv2.imencode(".png", overlay_bgr)
+    overlay_b64 = "data:image/png;base64," + base64.b64encode(buffer).decode("utf-8")
+
+    return jsonify({
+        "success": True,
+        "bounding_box": seg_result["bounding_box"],
+        "area_pixels": seg_result["area_pixels"],
+        "area_mm2": seg_result["area_mm2"],
+        "perimeter_px": seg_result.get("perimeter_px", 0),
+        "circularity": seg_result["circularity"],
+        "mean_lesion_delta_a": seg_result["mean_lesion_delta_a"],
+        "contour_points_count": len(seg_result.get("contour_points", [])),
+        "overlay_image": overlay_b64,
+        "governance_notice": "Explainable contour extraction. Non-diagnostic image metric."
+    })
+
+
+@app.route("/api/ai/align", methods=["POST"])
+def ai_align_longitudinal():
+    """
+    Explainable Edge AI: Aligns follow-up capture to baseline perspective
+    using ORB keypoint matching and RANSAC homography.
+    """
+    global active_record
+    if active_record.baseline_image is None:
+        return jsonify({"error": "Baseline image must be established first."}), 400
+
+    data = request.get_json() or {}
+    followup_img = decode_image_payload(data.get("followup_image", ""))
+    if followup_img is None:
+        if active_record.followup_images:
+            followup_img = active_record.followup_images[-1]
+        else:
+            return jsonify({"error": "No follow-up image available to align."}), 400
+
+    reg_result = edge_ai.register_longitudinal_images(active_record.baseline_image, followup_img)
+    if not reg_result.get("success", False):
+        return jsonify(reg_result), 400
+
+    _, buffer = cv2.imencode(".png", reg_result["aligned_image"])
+    aligned_b64 = "data:image/png;base64," + base64.b64encode(buffer).decode("utf-8")
+
+    return jsonify({
+        "success": True,
+        "inlier_ratio": reg_result["inlier_ratio"],
+        "matched_keypoints": reg_result["matched_keypoints"],
+        "transformation_type": reg_result["transformation_type"],
+        "aligned_image": aligned_b64
     })
 
 

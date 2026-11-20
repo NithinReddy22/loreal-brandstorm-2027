@@ -1,7 +1,8 @@
 # L'Oréal Brandstorm 2027 — La Roche-Posay OptiChroma v2.4
 
-[![Test Suite](https://img.shields.io/badge/pytest-50%20passed%20(100%25)-brightgreen.svg)](tests/)
+[![Test Suite](https://img.shields.io/badge/pytest-59%20passed%20(100%25)-brightgreen.svg)](tests/)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](src/)
+[![3D CAD](https://img.shields.io/badge/CAD-OpenSCAD%20%2F%20STL-purple.svg)](cad/)
 [![Brand](https://img.shields.io/badge/Brand-La%20Roche--Posay-009ee2.svg)](https://www.laroche-posay.com/)
 [![Playing Field](https://img.shields.io/badge/Brandstorm%202027-Playing%20Field%203-darkblue.svg)](#competition-alignment)
 [![Evidence Baseline](https://img.shields.io/badge/Evidence%20Register-v2.4%20Audited-orange.svg)](research/evidence-register.md)
@@ -36,6 +37,8 @@ Open your browser to: **`http://127.0.0.1:5000`**
 2. **Longitudinal Comparison Canvas:** One-click generation of the standardized side-by-side comparison canvas with an interactive **Differential Chromatic Heatmap** ($|\Delta a^*|$) highlighting localized erythema attenuation.
 3. **Clinician Triage & Consultation Summary:** Pharmacist/dermatologist annotation panel, progression assessment, recapture request triggers, and one-click printable **Standardized Consultation Summary (PDF/Print)**.
 4. **Research Telemetry Drawer:** Isolated academic audit module computing Relative Chromatic Contrast ($RCC$), Individual Typology Angle ($ITA^\circ$), and GLCM texture statistics.
+5. **Explainable Edge AI Lesion Delineation:** One-click CIELAB color-saliency contour extraction measuring calibrated surface area in $\text{mm}^2$ and circularity without black-box hallucination.
+6. **Parametric 3D CAD Enclosure:** Production-ready OpenSCAD model (`cad/optichroma_enclosure_v2_4.scad`) and pre-compiled 3D mesh (`cad/optichroma_enclosure_v2_4.stl`) with 1.5mm anti-blanching recess and universal spring clamp.
 
 ---
 

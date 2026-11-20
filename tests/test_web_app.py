@@ -158,3 +158,30 @@ def test_healing_trajectory_endpoint(client):
     assert "clinical_trend" in data
     # Verified reduction from Day 0 flare to Day 28 resolution
     assert data["net_reduction_pct"] > 50.0
+
+
+def test_ai_segment_endpoint(client):
+    """Verifies Edge AI lesion segmentation endpoint."""
+    payload = {"image": "/static/presets/baseline_day0.png"}
+    res = client.post("/api/ai/segment", json=payload)
+    assert res.status_code == 200
+    data = json.loads(res.data)
+    assert data["success"] is True
+    assert "bounding_box" in data
+    assert data["area_mm2"] > 0
+    assert "overlay_image" in data
+    assert data["overlay_image"].startswith("data:image/png;base64,")
+
+
+def test_ai_align_endpoint(client):
+    """Verifies Edge AI longitudinal image registration endpoint."""
+    client.post("/api/record/load-sample-case")
+    payload = {"followup_image": "/static/presets/followup_day7.png"}
+    res = client.post("/api/ai/align", json=payload)
+    assert res.status_code == 200
+    data = json.loads(res.data)
+    assert data["success"] is True
+    assert "aligned_image" in data
+    assert data["aligned_image"].startswith("data:image/png;base64,")
+    assert "inlier_ratio" in data
+
