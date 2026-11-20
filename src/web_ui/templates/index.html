@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Roche-Posay OptiChroma — Standardized Optical Smartphone Platform</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lrp: {
+              blue: '#0066B2',
+              darkblue: '#004C85',
+              lightblue: '#EBF4FA',
+              accent: '#009EE0',
+              slate: '#1E293B',
+              border: '#E2E8F0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printable-report, #printable-report * { visibility: visible; }
+      #printable-report { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- TOP HEADER / BRAND BAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <!-- LRP Medical Blue Badge -->
+        <div class="w-10 h-10 rounded-lg bg-lrp-blue flex items-center justify-center text-white font-bold text-xl shadow-inner">
+          <i data-lucide="scan-line" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-slate-900 tracking-tight text-lg">LA ROCHE-POSAY</span>
+            <span class="text-xs font-semibold px-2 py-0.5 bg-lrp-lightblue text-lrp-blue rounded-full border border-blue-200">OPTICHROMA™ v2.4</span>
+          </div>
+          <p class="text-xs text-slate-500">L'Oréal Brandstorm 2027 • Playing Field 3: Reinvent the Doctor-Patient Relationship</p>
+        </div>
+      </div>
+
+      <!-- System Status & Badges -->
+      <div class="flex items-center space-x-3">
+        <span class="hidden md:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-2 h-2 mr-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          Frozen Student MVP Baseline
+        </span>
+        <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 mr-1 text-slate-400"></i>
+          Non-Diagnostic
+        </span>
+        <button onclick="exportCurrentReport()" class="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-xs font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none">
+          <i data-lucide="printer" class="w-3.5 h-3.5 mr-1.5 text-slate-500"></i>
+          Consultation Summary
+        </button>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-100 flex space-x-8">
+      <button id="tab-capture" onclick="switchTab('capture')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-lrp-blue text-lrp-blue flex items-center space-x-2">
+        <i data-lucide="camera" class="w-4 h-4"></i>
+        <span>1. Optical Capture & Quality Gate</span>
+      </button>
+      <button id="tab-longitudinal" onclick="switchTab('longitudinal')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+        <i data-lucide="git-commit" class="w-4 h-4"></i>
+        <span>2. Longitudinal Comparison</span>
+      </button>
+      <button id="tab-clinician" onclick="switchTab('clinician')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+        <i data-lucide="stethoscope" class="w-4 h-4"></i>
+        <span>3. Clinician Triage & Consultation</span>
+      </button>
+      <button id="tab-research" onclick="switchTab('research')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2">
+        <i data-lucide="microscope" class="w-4 h-4"></i>
+        <span>4. Research Telemetry & Colorimetry</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: OPTICAL CAPTURE & QUALITY GATE -->
+    <!-- ============================================================== -->
+    <div id="view-capture" class="view-panel space-y-6">
+      
+      <!-- Top Instruction Card -->
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-start space-x-3">
+          <div class="p-2 bg-blue-100 text-lrp-blue rounded-lg">
+            <i data-lucide="info" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">Standardized Optical Acquisition & Quality Verification Gate</h2>
+            <p class="text-xs text-slate-600 mt-0.5">
+              OptiChroma verifies optical focus (Tenengrad energy &ge; 85.0) and rejects surface specular glare (saturation &le; 0.8%) before allowing images into the longitudinal record.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-500 font-medium">Quick Presets:</span>
+          <select id="preset-selector" onchange="loadSelectedPreset()" class="text-xs font-semibold bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-700 shadow-sm focus:ring-1 focus:ring-lrp-blue focus:outline-none">
+            <option value="">-- Choose Sample Capture --</option>
+            <option value="baseline_day0.png">Baseline Day 0 (Cross-polarized, Pass)</option>
+            <option value="followup_day7.png">Follow-Up Day 7 (Reduced Erythema, Pass)</option>
+            <option value="artifact_glare_unpolarized.png">Artifact: Unpolarized Glare (Fail)</option>
+            <option value="artifact_blur_defocus.png">Artifact: Defocus Blur (Fail)</option>
+            <option value="phototype_vi_baseline.png">Inclusivity: Dark Skin VI (Pass)</option>
+            <option value="phototype_i_baseline.png">Inclusivity: Fair Skin I (Pass)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 2-Column Grid: Image Canvas / Upload vs. Optical Quality Meters -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Image Canvas & Controls (7 Cols) -->
+        <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+              <i data-lucide="image" class="w-4 h-4 text-lrp-blue"></i>
+              <span>Active Optical Capture Viewport</span>
+            </h3>
+            <span id="canvas-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              No Image Loaded
+            </span>
+          </div>
+
+          <!-- The Image Preview Area -->
+          <div class="relative w-full aspect-square bg-slate-900 rounded-lg border border-slate-300 overflow-hidden flex items-center justify-center group shadow-inner">
+            <img id="active-image-preview" src="" alt="Capture Preview" class="w-full h-full object-contain hidden" />
+            
+            <div id="placeholder-preview" class="text-center p-6 text-slate-400 space-y-3">
+              <i data-lucide="crosshair" class="w-12 h-12 mx-auto text-slate-500 animate-pulse"></i>
+              <p class="text-xs">Select a preset above, drag & drop an image, or use camera capture.</p>
+              <div class="flex items-center justify-center space-x-2">
+                <label class="cursor-pointer px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded text-xs font-medium border border-slate-700 transition">
+                  Browse File
+                  <input type="file" id="file-uploader" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+                </label>
+              </div>
+            </div>
+
+            <!-- In-frame Optical Target Overlay Indicator -->
+            <div id="target-overlay" class="absolute top-4 left-4 border border-dashed border-yellow-400 bg-yellow-400/20 text-yellow-300 text-[10px] font-mono px-2 py-1 rounded hidden pointer-events-none">
+              18% Neutral Gray Target
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-2">
+              <label class="cursor-pointer px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition flex items-center space-x-1.5">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                <span>Upload Custom Image</span>
+                <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)">
+              </label>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button id="btn-set-baseline" onclick="setAsBaseline()" disabled class="px-3.5 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-not-allowed">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                <span>Commit Baseline</span>
+              </button>
+              <button id="btn-add-followup" onclick="addAsFollowup()" disabled class="px-3.5 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-not-allowed">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                <span>Add as Follow-Up</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Optical Quality Verification Gate (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Quality Gate Summary Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                <i data-lucide="gauge" class="w-4 h-4 text-lrp-blue"></i>
+                <span>Quality Gate Evaluation</span>
+              </h3>
+              <span id="gate-overall-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 uppercase tracking-wide">
+                Awaiting Image
+              </span>
+            </div>
+
+            <!-- Tenengrad Focus Sharpness Meter -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-semibold text-slate-700 flex items-center space-x-1">
+                  <span>Tenengrad Focus Energy</span>
+                  <span class="text-[10px] text-slate-400 font-mono">(&ge; 85.0)</span>
+                </span>
+                <span id="metric-tenengrad-val" class="font-mono font-bold text-slate-600">—</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden relative">
+                <div id="bar-tenengrad" class="h-full bg-slate-300 w-0 transition-all duration-500 rounded-full"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>0.0 (Defocused)</span>
+                <span id="metric-tenengrad-status" class="font-medium">—</span>
+                <span>2000+ (Sharp)</span>
+              </div>
+            </div>
+
+            <!-- Specular Saturation Ratio Meter -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-semibold text-slate-700 flex items-center space-x-1">
+                  <span>Specular Saturation Ratio</span>
+                  <span class="text-[10px] text-slate-400 font-mono">(&le; 0.8%)</span>
+                </span>
+                <span id="metric-sat-val" class="font-mono font-bold text-slate-600">—</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden relative">
+                <div id="bar-sat" class="h-full bg-slate-300 w-0 transition-all duration-500 rounded-full"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>0.0% (Polarized)</span>
+                <span id="metric-sat-status" class="font-medium">—</span>
+                <span>5.0% (Flash Glare)</span>
+              </div>
+            </div>
+
+            <!-- Shadow Underexposure Meter -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-semibold text-slate-700 flex items-center space-x-1">
+                  <span>Deep Shadow Ratio</span>
+                  <span class="text-[10px] text-slate-400 font-mono">(&le; 2.0%)</span>
+                </span>
+                <span id="metric-shadow-val" class="font-mono font-bold text-slate-600">—</span>
+              </div>
+              <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden relative">
+                <div id="bar-shadow" class="h-full bg-slate-300 w-0 transition-all duration-500 rounded-full"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>0.0% (Balanced)</span>
+                <span id="metric-shadow-status" class="font-medium">—</span>
+                <span>10.0% (Dark)</span>
+              </div>
+            </div>
+
+            <!-- Algorithmic Guidance & Rejection Reason Banner -->
+            <div id="gate-guidance-card" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 flex items-start space-x-2.5">
+              <i data-lucide="help-circle" class="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0"></i>
+              <div id="gate-guidance-text">
+                Select or capture an image to execute optical quality gate inspection.
+              </div>
+            </div>
+          </div>
+
+          <!-- Capture Metadata Box -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-lrp-blue"></i>
+              <span>Locked Capture Parameters</span>
+            </h4>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-slate-50 p-2 rounded border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">DEVICE</span>
+                <span class="font-semibold text-slate-800">Google Pixel 7</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">WORKING DISTANCE</span>
+                <span class="font-semibold text-slate-800">35.0 mm Enclosure</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">ILLUMINATION</span>
+                <span class="font-semibold text-slate-800">5000K Dual Nichia</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded border border-slate-100">
+                <span class="text-[10px] text-slate-400 block">POLARIZATION</span>
+                <span class="font-semibold text-slate-800">Cross-Polarized (90°)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: LONGITUDINAL COMPARISON -->
+    <!-- ============================================================== -->
+    <div id="view-longitudinal" class="view-panel space-y-6 hidden">
+      
+      <!-- Timeline Header -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="git-commit" class="w-5 h-5 text-lrp-blue"></i>
+            <span>Longitudinal Skin Observation Timeline</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Compare standardized baseline against follow-up captures with registered geometry and differential chromatic heatmap.
+          </p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <label class="text-xs font-semibold text-slate-700">Display View:</label>
+          <div class="inline-flex rounded-md shadow-sm">
+            <button id="view-mode-side" onclick="toggleComparisonView('side')" class="px-3 py-1.5 text-xs font-semibold rounded-l-lg bg-lrp-blue text-white border border-lrp-blue">
+              Standard Side-by-Side
+            </button>
+            <button id="view-mode-heatmap" onclick="toggleComparisonView('heatmap')" class="px-3 py-1.5 text-xs font-semibold rounded-r-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+              Differential Heatmap
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Visual Comparison Canvas -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col items-center">
+        
+        <div id="comparison-loading" class="text-center py-16 text-slate-400 space-y-3">
+          <i data-lucide="layers" class="w-12 h-12 mx-auto text-slate-300"></i>
+          <p class="text-sm font-medium">Both a Baseline and at least one Follow-Up image are required for longitudinal comparison.</p>
+          <button onclick="loadSampleCase()" class="px-4 py-2 bg-lrp-blue text-white rounded-lg text-xs font-bold hover:bg-lrp-darkblue transition shadow-sm">
+            Load Complete Day 0 vs Day 7 Sample Case
+          </button>
+        </div>
+
+        <div id="comparison-display" class="w-full flex flex-col items-center space-y-4 hidden">
+          <!-- The Rendered Canvas -->
+          <div class="w-full max-w-4xl border border-slate-300 rounded-lg overflow-hidden shadow-md bg-slate-900">
+            <img id="rendered-comparison-img" src="" alt="Comparison Canvas" class="w-full h-auto object-contain" />
+          </div>
+
+          <!-- Heatmap Legend -->
+          <div id="heatmap-legend" class="w-full max-w-4xl bg-slate-50 border border-slate-200 rounded-lg p-3 flex items-center justify-between text-xs hidden">
+            <span class="font-semibold text-slate-700 flex items-center space-x-1.5">
+              <i data-lucide="activity" class="w-4 h-4 text-amber-500"></i>
+              <span>Differential Chromatic Shift (|Δa*| Red-Green Axis):</span>
+            </span>
+            <div class="flex items-center space-x-2">
+              <span class="text-slate-500 text-[11px]">Unchanged (0.0)</span>
+              <div class="w-48 h-3 rounded-full bg-gradient-to-r from-black via-purple-600 via-orange-500 to-yellow-300 border border-slate-300"></div>
+              <span class="text-slate-500 text-[11px]">Significant Shift (&ge; 30.0)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: CLINICIAN TRIAGE & CONSULTATION SUMMARY -->
+    <!-- ============================================================== -->
+    <div id="view-clinician" class="view-panel space-y-6 hidden">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: Clinician Triage Input Form (5 Cols) -->
+        <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="border-b border-slate-100 pb-3">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <i data-lucide="clipboard-pen" class="w-4 h-4 text-lrp-blue"></i>
+              <span>Healthcare Professional Triage Entry</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Pharmacist or reviewing dermatologist observation entry.
+            </p>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Clinician / Pharmacist ID</label>
+              <input type="text" id="clinician-id" value="PHARM-PARIS-042" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono focus:ring-1 focus:ring-lrp-blue focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Visual Progression Assessment</label>
+              <select id="clinical-severity" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium focus:ring-1 focus:ring-lrp-blue focus:outline-none">
+                <option value="IMPROVING">Marked Improvement (Reduced Erythema & Scaling)</option>
+                <option value="STABLE">Stable / No Significant Progression</option>
+                <option value="FLARE">Possible Flare / Increased Visual Erythema</option>
+                <option value="INDETERMINATE">Indeterminate / Insufficient Quality</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Professional Clinical Notes</label>
+              <textarea id="clinician-comment" rows="4" placeholder="Enter clinical observations, skincare regimen adherence, or recommendation for in-person consultation..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:ring-1 focus:ring-lrp-blue focus:outline-none">Patient completed 7-day application of soothing balm. Longitudinal comparison reveals substantial attenuation of localized erythema. Skin surface texture appears more uniform without evident flaking.</textarea>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="request-recapture" class="rounded border-slate-300 text-lrp-blue focus:ring-lrp-blue">
+                <span class="font-semibold text-rose-700 text-xs">Request Patient Recapture (Image Quality or Artifact Issue)</span>
+              </label>
+            </div>
+
+            <button onclick="submitClinicianAnnotation()" class="w-full py-2.5 bg-lrp-blue hover:bg-lrp-darkblue text-white rounded-lg font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              <span>Save Annotation & Update Record</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Real-Time Consultation Summary Document Preview (7 Cols) -->
+        <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <div>
+              <span class="text-[10px] font-extrabold text-lrp-blue tracking-wider uppercase">L'ORÉAL DERMATOLOGICAL BEAUTY</span>
+              <h3 class="text-sm font-bold text-slate-900">Standardized Consultation Summary</h3>
+            </div>
+            <button onclick="window.print()" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold border border-slate-200 flex items-center space-x-1">
+              <i data-lucide="printer" class="w-3 h-3"></i>
+              <span>Print / PDF</span>
+            </button>
+          </div>
+
+          <!-- The Printable Document Container -->
+          <div id="printable-report" class="bg-slate-50 border border-slate-200 rounded-lg p-5 space-y-4 text-xs font-sans">
+            
+            <!-- Document Meta -->
+            <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+              <div>
+                <p class="text-slate-400 text-[10px]">DOCUMENT ID</p>
+                <p id="doc-record-id" class="font-mono font-bold text-slate-800">REC-2027-OPT-8812</p>
+              </div>
+              <div class="text-right">
+                <p class="text-slate-400 text-[10px]">PATIENT PSEUDONYM</p>
+                <p id="doc-patient" class="font-bold text-slate-800">ANON-PT-4091</p>
+              </div>
+              <div class="text-right">
+                <p class="text-slate-400 text-[10px]">ANATOMICAL LOCATION</p>
+                <p id="doc-location" class="font-bold text-slate-800">Right Volar Forearm</p>
+              </div>
+            </div>
+
+            <!-- Captured Images Mini-Gallery -->
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">VERIFIED LONGITUDINAL SAMPLES</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="border border-slate-200 bg-white p-2 rounded">
+                  <span class="text-[10px] font-bold text-amber-600 block mb-1">DAY 0: BASELINE</span>
+                  <div class="w-full aspect-square bg-slate-100 rounded overflow-hidden">
+                    <img id="doc-img-baseline" src="" class="w-full h-full object-contain" />
+                  </div>
+                  <span id="doc-baseline-meta" class="text-[9px] text-slate-400 block mt-1 font-mono">TG: 2201.4 | Sat: 0.0%</span>
+                </div>
+                <div class="border border-slate-200 bg-white p-2 rounded">
+                  <span class="text-[10px] font-bold text-emerald-600 block mb-1">DAY 7: FOLLOW-UP</span>
+                  <div class="w-full aspect-square bg-slate-100 rounded overflow-hidden">
+                    <img id="doc-img-followup" src="" class="w-full h-full object-contain" />
+                  </div>
+                  <span id="doc-followup-meta" class="text-[9px] text-slate-400 block mt-1 font-mono">TG: 2198.2 | Sat: 0.0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Clinician Annotations Section -->
+            <div class="border-t border-slate-200 pt-3 space-y-1.5">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CLINICAL OBSERVATION LOG</p>
+              <div id="doc-annotations-list" class="space-y-2">
+                <div class="bg-white p-2.5 rounded border border-slate-200 text-xs text-slate-700">
+                  <div class="flex justify-between font-semibold text-slate-900 text-[11px] mb-1">
+                    <span>Dr. / Pharm. Reviewer</span>
+                    <span class="text-slate-400 font-normal">Day 7 Follow-Up</span>
+                  </div>
+                  <p id="doc-annotation-text">Patient completed 7-day application of soothing balm. Longitudinal comparison reveals substantial attenuation of localized erythema.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mandatory Governance Disclaimer -->
+            <div class="border-t border-slate-200 pt-3 text-[10px] text-slate-500 leading-relaxed bg-amber-50/50 p-2.5 rounded border border-amber-100">
+              <span class="font-bold text-slate-700">Governance Notice:</span>
+              OptiChroma is an optical documentation accessory. This consultation summary facilitates structured communication between patient and licensed clinicians. It does NOT constitute an automated medical diagnosis, flare prediction, or treatment prescription.
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 4: RESEARCH TELEMETRY & SCIENTIFIC COLORIMETRY -->
+    <!-- ============================================================== -->
+    <div id="view-research" class="view-panel space-y-6 hidden">
+      
+      <!-- Scientific Warning Banner -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start space-x-3 text-xs text-amber-900 shadow-sm">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+        <div>
+          <span class="font-bold">Independent Scientific Boundary (v2.4 Baseline Freeze):</span>
+          The metrics displayed below are isolated in the OptiChroma Research Module for academic verification and optical audit. Individual Typology Angle (ITA°) is surface colorimetry, NOT a clinical Fitzpatrick phototype. Relative Chromatic Contrast (RCC) is an image chromatic contrast metric, NOT a hemoglobin/blood flow assay. GLCM texture descriptors represent 2D pixel statistics, NOT a physical skin-barrier or TEWL measurement.
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: Interactive ROI Selection & Controls (6 Cols) -->
+        <div class="lg:col-span-6 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+            <i data-lucide="crop" class="w-4 h-4 text-lrp-blue"></i>
+            <span>Region of Interest (ROI) Analysis</span>
+          </h3>
+
+          <div class="relative w-full aspect-square bg-slate-900 rounded-lg overflow-hidden border border-slate-300 flex items-center justify-center">
+            <img id="research-image-preview" src="" class="w-full h-full object-contain" />
+            
+            <!-- In-frame ROI visual boxes -->
+            <div class="absolute top-[5%] left-[5%] w-[12%] h-[12%] border-2 border-yellow-400 bg-yellow-400/20 text-yellow-300 text-[9px] font-mono p-1">
+              Ref (18% Gray)
+            </div>
+            <div class="absolute top-[40%] left-[40%] w-[30%] h-[30%] border-2 border-emerald-400 bg-emerald-400/20 text-emerald-300 text-[9px] font-mono p-1">
+              Lesion ROI
+            </div>
+          </div>
+
+          <button onclick="runResearchAnalysis()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-xs shadow-sm transition flex items-center justify-center space-x-2">
+            <i data-lucide="play" class="w-4 h-4 text-emerald-400"></i>
+            <span>Compute Scientific Telemetry for Active ROI</span>
+          </button>
+        </div>
+
+        <!-- Right: Telemetry Metrics Cards (6 Cols) -->
+        <div class="lg:col-span-6 space-y-4">
+          
+          <!-- Metric 1: Relative Chromatic Contrast -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[10px] text-slate-400 uppercase font-mono">CHROMATIC RED-GREEN AXIS</span>
+                <h4 class="text-sm font-bold text-slate-800">Relative Chromatic Contrast (RCC)</h4>
+              </div>
+              <span id="res-rcc-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-50 text-lrp-blue border border-blue-200">
+                Δa* = +14.8
+              </span>
+            </div>
+            <p class="text-xs text-slate-500">
+              Quantifies the relative shift in the CIELAB a* coordinate between the lesion ROI and normal background reference: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">RCC = a*_ROI - a*_ref</code>.
+            </p>
+          </div>
+
+          <!-- Metric 2: Individual Typology Angle -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[10px] text-slate-400 uppercase font-mono">SURFACE COLORIMETRY (CHARDON 1991)</span>
+                <h4 class="text-sm font-bold text-slate-800">Individual Typology Angle (ITA°)</h4>
+              </div>
+              <span id="res-ita-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                +22.4° (Intermediate)
+              </span>
+            </div>
+            <p class="text-xs text-slate-500">
+              Calculated using the numerically stabilized formulation <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">ITA = arctan((L* - 50) / b*) * (180 / π)</code>.
+            </p>
+          </div>
+
+          <!-- Metric 3: GLCM Texture Descriptors -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[10px] text-slate-400 uppercase font-mono">2D SPATIAL GRAY-LEVEL CO-OCCURRENCE</span>
+                <h4 class="text-sm font-bold text-slate-800">Exploratory Texture Descriptors</h4>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 pt-2 text-xs">
+              <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 block">CONTRAST</span>
+                <span id="res-glcm-contrast" class="font-mono font-bold text-slate-800">1.42</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 block">HOMOGENEITY</span>
+                <span id="res-glcm-homo" class="font-mono font-bold text-slate-800">0.78</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
+                <span class="text-[10px] text-slate-400 block">ENERGY</span>
+                <span id="res-glcm-energy" class="font-mono font-bold text-slate-800">0.19</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // State Management
+    let currentImageSrc = '';
+    let currentQualityReport = null;
+    let baselineCommitted = false;
+    let followupCommitted = false;
+    let currentView = 'capture';
+
+    // Initialize Lucide Icons
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      // Load default baseline preset on start
+      document.getElementById('preset-selector').value = 'baseline_day0.png';
+      loadSelectedPreset();
+    });
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      currentView = tabId;
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-lrp-blue', 'text-lrp-blue');
+        btn.classList.add('border-transparent', 'text-slate-500');
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      activeBtn.classList.remove('border-transparent', 'text-slate-500');
+      activeBtn.classList.add('border-lrp-blue', 'text-lrp-blue');
+
+      if (tabId === 'longitudinal') {
+        updateLongitudinalView();
+      } else if (tabId === 'research') {
+        updateResearchView();
+      }
+    }
+
+    // Load Sample Preset
+    async function loadSelectedPreset() {
+      const preset = document.getElementById('preset-selector').value;
+      if (!preset) return;
+
+      const imgPath = `/static/presets/${preset}`;
+      currentImageSrc = imgPath;
+      
+      const preview = document.getElementById('active-image-preview');
+      preview.src = imgPath;
+      preview.classList.remove('hidden');
+      document.getElementById('placeholder-preview').classList.add('hidden');
+      document.getElementById('target-overlay').classList.remove('hidden');
+      
+      // Update badge
+      const badge = document.getElementById('canvas-badge');
+      badge.textContent = preset.replace('.png', '');
+      badge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-lrp-blue';
+
+      // Evaluate Quality Gate via API
+      await evaluateQualityGate(imgPath);
+    }
+
+    // Handle File Upload
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Data = e.target.result;
+        currentImageSrc = base64Data;
+        
+        const preview = document.getElementById('active-image-preview');
+        preview.src = base64Data;
+        preview.classList.remove('hidden');
+        document.getElementById('placeholder-preview').classList.add('hidden');
+        document.getElementById('target-overlay').classList.remove('hidden');
+        
+        document.getElementById('canvas-badge').textContent = file.name;
+        document.getElementById('preset-selector').value = '';
+        
+        await evaluateQualityGate(base64Data);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Quality Gate API Call
+    async function evaluateQualityGate(imagePayload) {
+      const statusBadge = document.getElementById('gate-overall-badge');
+      statusBadge.textContent = 'EVALUATING...';
+      statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 uppercase tracking-wide';
+
+      try {
+        const response = await fetch('/api/quality-gate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: imagePayload })
+        });
+        const data = await response.json();
+        currentQualityReport = data;
+        renderQualityGateMetrics(data);
+      } catch (err) {
+        console.error('Quality gate check failed:', err);
+      }
+    }
+
+    // Render Metrics on Gauges
+    function renderQualityGateMetrics(data) {
+      const tg = data.tenengrad_sharpness || 0;
+      const tgThreshold = data.sharpness_threshold || 85.0;
+      const sat = (data.saturation_ratio || 0) * 100;
+      const satThreshold = (data.saturation_threshold || 0.008) * 100;
+      const shadow = (data.shadow_ratio || 0) * 100;
+      const shadowThreshold = (data.shadow_threshold || 0.02) * 100;
+      const passed = data.passed;
+
+      // 1. Tenengrad Focus
+      document.getElementById('metric-tenengrad-val').textContent = tg.toFixed(1);
+      const tgPercent = Math.min(Math.max((tg / 2000) * 100, 3), 100);
+      const tgBar = document.getElementById('bar-tenengrad');
+      tgBar.style.width = `${tgPercent}%`;
+      
+      const tgStatus = document.getElementById('metric-tenengrad-status');
+      if (data.sharpness_pass) {
+        tgBar.className = 'h-full bg-emerald-500 rounded-full transition-all duration-500';
+        tgStatus.textContent = 'SHARP';
+        tgStatus.className = 'font-bold text-emerald-600';
+      } else {
+        tgBar.className = 'h-full bg-rose-500 rounded-full transition-all duration-500';
+        tgStatus.textContent = 'BLURRY / DEFOCUSED';
+        tgStatus.className = 'font-bold text-rose-600';
+      }
+
+      // 2. Specular Saturation
+      document.getElementById('metric-sat-val').textContent = `${sat.toFixed(2)}%`;
+      const satPercent = Math.min(Math.max((sat / 5.0) * 100, 3), 100);
+      const satBar = document.getElementById('bar-sat');
+      satBar.style.width = `${satPercent}%`;
+      
+      const satStatus = document.getElementById('metric-sat-status');
+      if (sat <= satThreshold) {
+        satBar.className = 'h-full bg-emerald-500 rounded-full transition-all duration-500';
+        satStatus.textContent = 'POLARIZED';
+        satStatus.className = 'font-bold text-emerald-600';
+      } else {
+        satBar.className = 'h-full bg-rose-500 rounded-full transition-all duration-500';
+        satStatus.textContent = 'GLARE CLIPPING';
+        satStatus.className = 'font-bold text-rose-600';
+      }
+
+      // 3. Shadow Underexposure
+      document.getElementById('metric-shadow-val').textContent = `${shadow.toFixed(2)}%`;
+      const shadowPercent = Math.min(Math.max((shadow / 10.0) * 100, 3), 100);
+      const shadowBar = document.getElementById('bar-shadow');
+      shadowBar.style.width = `${shadowPercent}%`;
+      
+      const shadowStatus = document.getElementById('metric-shadow-status');
+      if (shadow <= shadowThreshold) {
+        shadowBar.className = 'h-full bg-emerald-500 rounded-full transition-all duration-500';
+        shadowStatus.textContent = 'BALANCED';
+        shadowStatus.className = 'font-bold text-emerald-600';
+      } else {
+        shadowBar.className = 'h-full bg-amber-500 rounded-full transition-all duration-500';
+        shadowStatus.textContent = 'TOO DARK';
+        shadowStatus.className = 'font-bold text-amber-600';
+      }
+
+      // Overall Badge
+      const statusBadge = document.getElementById('gate-overall-badge');
+      const guidanceText = document.getElementById('gate-guidance-text');
+      const guidanceCard = document.getElementById('gate-guidance-card');
+
+      const btnBaseline = document.getElementById('btn-set-baseline');
+      const btnFollowup = document.getElementById('btn-add-followup');
+
+      if (passed) {
+        statusBadge.textContent = 'VERIFIED PASS';
+        statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 uppercase tracking-wide border border-emerald-200';
+        guidanceCard.className = 'bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-800 flex items-start space-x-2.5';
+        guidanceText.innerHTML = `<strong>Capture Accepted:</strong> Optical focus (${tg.toFixed(1)}) and cross-polarization glare suppression (${sat.toFixed(2)}%) meet clinical documentation standards.`;
+        
+        btnBaseline.disabled = false;
+        btnBaseline.className = 'px-3.5 py-2 bg-lrp-blue hover:bg-lrp-darkblue text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-sm cursor-pointer';
+        
+        btnFollowup.disabled = !baselineCommitted;
+        if (baselineCommitted) {
+          btnFollowup.className = 'px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-sm cursor-pointer';
+        }
+      } else {
+        statusBadge.textContent = 'GATE REJECTED';
+        statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 uppercase tracking-wide border border-rose-200';
+        guidanceCard.className = 'bg-rose-50 border border-rose-200 rounded-lg p-3 text-xs text-rose-800 flex items-start space-x-2.5';
+        
+        let reasons = [];
+        if (!data.sharpness_pass) reasons.push(`Tenengrad sharpness (${tg.toFixed(1)}) below minimum 85.0. Image is defocused.`);
+        if (sat > satThreshold) reasons.push(`Specular saturation (${sat.toFixed(2)}%) exceeds 0.8% threshold. Surface glare or polarizer misorientation detected.`);
+        if (shadow > shadowThreshold) reasons.push(`Shadow ratio (${shadow.toFixed(2)}%) exceeds 2.0% threshold. Ensure LED illumination is active.`);
+
+        guidanceText.innerHTML = `<strong>Capture Rejected:</strong> ${reasons.join(' ')} Recapture required.`;
+        
+        btnBaseline.disabled = true;
+        btnBaseline.className = 'px-3.5 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-not-allowed';
+        btnFollowup.disabled = true;
+        btnFollowup.className = 'px-3.5 py-2 bg-slate-200 text-slate-400 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-not-allowed';
+      }
+    }
+
+    // Set as Baseline
+    async function setAsBaseline() {
+      try {
+        const res = await fetch('/api/record/baseline', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: currentImageSrc })
+        });
+        const data = await res.json();
+        if (data.success) {
+          baselineCommitted = true;
+          document.getElementById('doc-img-baseline').src = currentImageSrc;
+          alert('Baseline committed successfully to record ANON-PT-4091!');
+          // Switch preset selector to follow-up to guide user
+          document.getElementById('preset-selector').value = 'followup_day7.png';
+          loadSelectedPreset();
+        }
+      } catch (err) {
+        console.error('Failed to commit baseline:', err);
+      }
+    }
+
+    // Add as Follow-Up
+    async function addAsFollowup() {
+      try {
+        const res = await fetch('/api/record/followup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: currentImageSrc })
+        });
+        const data = await res.json();
+        if (data.success) {
+          followupCommitted = true;
+          document.getElementById('doc-img-followup').src = currentImageSrc;
+          alert('Follow-Up committed successfully! Switching to Longitudinal Comparison tab...');
+          switchTab('longitudinal');
+        }
+      } catch (err) {
+        console.error('Failed to commit follow-up:', err);
+      }
+    }
+
+    // Load Complete Day 0 vs Day 7 Sample Case
+    async function loadSampleCase() {
+      try {
+        await fetch('/api/record/load-sample-case', { method: 'POST' });
+        baselineCommitted = true;
+        followupCommitted = true;
+        document.getElementById('doc-img-baseline').src = '/static/presets/baseline_day0.png';
+        document.getElementById('doc-img-followup').src = '/static/presets/followup_day7.png';
+        updateLongitudinalView();
+      } catch (err) {
+        console.error('Failed to load sample case:', err);
+      }
+    }
+
+    // Update Longitudinal View
+    async function updateLongitudinalView() {
+      if (!baselineCommitted || !followupCommitted) {
+        document.getElementById('comparison-loading').classList.remove('hidden');
+        document.getElementById('comparison-display').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('comparison-loading').classList.add('hidden');
+      document.getElementById('comparison-display').classList.remove('hidden');
+      
+      toggleComparisonView('side');
+    }
+
+    // Toggle Side-by-side vs Heatmap
+    async function toggleComparisonView(mode) {
+      const sideBtn = document.getElementById('view-mode-side');
+      const heatBtn = document.getElementById('view-mode-heatmap');
+      const legend = document.getElementById('heatmap-legend');
+      const canvasImg = document.getElementById('rendered-comparison-img');
+
+      if (mode === 'side') {
+        sideBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-l-lg bg-lrp-blue text-white border border-lrp-blue';
+        heatBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-r-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+        legend.classList.add('hidden');
+        canvasImg.src = '/api/record/comparison?' + new Date().getTime();
+      } else {
+        heatBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-r-lg bg-lrp-blue text-white border border-lrp-blue';
+        sideBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-l-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+        legend.classList.remove('hidden');
+        canvasImg.src = '/api/record/difference-heatmap?' + new Date().getTime();
+      }
+    }
+
+    // Submit Clinician Annotation
+    async function submitClinicianAnnotation() {
+      const clinicianId = document.getElementById('clinician-id').value;
+      const severity = document.getElementById('clinical-severity').value;
+      const comment = document.getElementById('clinician-comment').value;
+      const reqRecapture = document.getElementById('request-recapture').checked;
+
+      try {
+        const res = await fetch('/api/record/annotate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            clinician_id: clinicianId,
+            severity: severity,
+            comment: comment,
+            request_recapture: reqRecapture
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('doc-annotation-text').textContent = comment;
+          alert('Clinician observation successfully recorded in consultation summary!');
+        }
+      } catch (err) {
+        console.error('Failed to submit clinician annotation:', err);
+      }
+    }
+
+    // Research Telemetry View Update
+    function updateResearchView() {
+      const img = document.getElementById('research-image-preview');
+      img.src = currentImageSrc || '/static/presets/baseline_day0.png';
+    }
+
+    // Run Research Analysis
+    async function runResearchAnalysis() {
+      try {
+        const res = await fetch('/api/research/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: currentImageSrc || '/static/presets/baseline_day0.png' })
+        });
+        const data = await res.json();
+
+        // Update RCC
+        const rccVal = data.rcc ? data.rcc.relative_chromatic_contrast.toFixed(1) : '+14.8';
+        document.getElementById('res-rcc-badge').textContent = `Δa* = ${rccVal > 0 ? '+' : ''}${rccVal}`;
+
+        // Update ITA
+        const itaVal = data.ita ? data.ita.exploratory_ita_degrees.toFixed(1) : '+22.4';
+        const itaCat = data.ita ? data.ita.exploratory_ita_color_category : 'Intermediate';
+        document.getElementById('res-ita-badge').textContent = `${itaVal}° (${itaCat})`;
+
+        // Update GLCM
+        if (data.glcm) {
+          document.getElementById('res-glcm-contrast').textContent = data.glcm.texture_contrast ? data.glcm.texture_contrast.toFixed(2) : '0.21';
+          document.getElementById('res-glcm-homo').textContent = data.glcm.texture_homogeneity ? data.glcm.texture_homogeneity.toFixed(2) : '0.88';
+          document.getElementById('res-glcm-energy').textContent = data.glcm.texture_energy ? data.glcm.texture_energy.toFixed(2) : '0.25';
+        }
+      } catch (err) {
+        console.error('Failed to run research analysis:', err);
+      }
+    }
+
+    function exportCurrentReport() {
+      switchTab('clinician');
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+  </script>
+
+</body>
+</html>
