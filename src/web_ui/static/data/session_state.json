@@ -1,0 +1,81 @@
+{
+  "report_type": "La Roche-Posay OptiChroma Visual Documentation Record",
+  "version": "2.4.0 (MVP)",
+  "record_id": "006ccc94-62cf-4f63-9c6d-0bdd9eb50f44",
+  "created_at": "2026-11-20T10:11:31.653699+00:00",
+  "patient_pseudonym": "ANON-PT-4091",
+  "anatomical_location": "Right Volar Forearm",
+  "has_baseline": true,
+  "baseline_metadata": {
+    "timestamp": "2026-11-20T10:11:31.661057+00:00",
+    "device_model": "Google Pixel 7 (Reference Enclosure)",
+    "acquisition_mode": "TIER2_JPEG",
+    "iso": 100,
+    "exposure_time_sec": 0.02,
+    "notes": "Day 0: Acute erythematous flare with pruritus."
+  },
+  "baseline_quality": {
+    "passed": true,
+    "tenengrad_sharpness": 1644.15,
+    "sharpness_threshold": 85.0,
+    "sharpness_pass": true,
+    "saturation_ratio": 0.0,
+    "saturation_threshold": 0.008,
+    "shadow_ratio": 0.0,
+    "shadow_threshold": 0.02,
+    "exposure_pass": true
+  },
+  "followup_count": 4,
+  "followup_metadata": [
+    {
+      "timestamp": "2026-11-20T10:11:31.684266+00:00",
+      "device_model": "Google Pixel 7 (Reference Enclosure)",
+      "acquisition_mode": "TIER2_JPEG",
+      "iso": 100,
+      "exposure_time_sec": 0.02,
+      "notes": "Day 7: Initiated La Roche-Posay Cicaplast Baume B5+ regimen; early erythema softening."
+    },
+    {
+      "timestamp": "2026-11-20T10:11:31.705618+00:00",
+      "device_model": "Google Pixel 7 (Reference Enclosure)",
+      "acquisition_mode": "TIER2_JPEG",
+      "iso": 100,
+      "exposure_time_sec": 0.02,
+      "notes": "Day 14: Substantial reduction in peripheral redness; patient reports pruritus resolved."
+    },
+    {
+      "timestamp": "2026-11-20T10:11:31.727399+00:00",
+      "device_model": "Google Pixel 7 (Reference Enclosure)",
+      "acquisition_mode": "TIER2_JPEG",
+      "iso": 100,
+      "exposure_time_sec": 0.02,
+      "notes": "Day 21: Lesion boundary contracted; minimal residual pink chromaticity."
+    },
+    {
+      "timestamp": "2026-11-20T10:11:31.749649+00:00",
+      "device_model": "Google Pixel 7 (Reference Enclosure)",
+      "acquisition_mode": "TIER2_JPEG",
+      "iso": 100,
+      "exposure_time_sec": 0.02,
+      "notes": "Day 28: Full clinical resolution; skin tone returned to baseline perilesional level."
+    }
+  ],
+  "patient_notes": [],
+  "clinician_annotations": [
+    {
+      "annotation_id": "b54d1757-5c26-47ec-b5b9-0befd1f09d40",
+      "clinician_id": "PHARM-PARIS-042",
+      "timestamp": "2026-11-20T10:11:31.763566+00:00",
+      "comment": "Patient completed 28-day soothing balm regimen. Objective Chromatic Healing Trajectory demonstrates 98.4% erythema contrast attenuation.",
+      "request_recapture": false
+    }
+  ],
+  "governance_disclaimer": "OptiChroma is an optical documentation accessory. This report contains standardized visual records and does NOT provide an autonomous diagnosis.",
+  "session_day_offsets": [
+    0,
+    7,
+    14,
+    21,
+    28
+  ]
+}

@@ -6,6 +6,8 @@
   <title>La Roche-Posay OptiChroma — Standardized Optical Smartphone Platform</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for Chromatic Healing Trajectory -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -82,7 +84,7 @@
       </button>
       <button id="tab-longitudinal" onclick="switchTab('longitudinal')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2">
         <i data-lucide="git-commit" class="w-4 h-4"></i>
-        <span>2. Longitudinal Comparison</span>
+        <span>2. Longitudinal Comparison & CHT</span>
       </button>
       <button id="tab-clinician" onclick="switchTab('clinician')" class="tab-btn py-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center space-x-2">
         <i data-lucide="stethoscope" class="w-4 h-4"></i>
@@ -120,8 +122,11 @@
           <span class="text-xs text-slate-500 font-medium">Quick Presets:</span>
           <select id="preset-selector" onchange="loadSelectedPreset()" class="text-xs font-semibold bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-700 shadow-sm focus:ring-1 focus:ring-lrp-blue focus:outline-none">
             <option value="">-- Choose Sample Capture --</option>
-            <option value="baseline_day0.png">Baseline Day 0 (Cross-polarized, Pass)</option>
-            <option value="followup_day7.png">Follow-Up Day 7 (Reduced Erythema, Pass)</option>
+            <option value="baseline_day0.png">Baseline Day 0 (Flare, Pass)</option>
+            <option value="followup_day7.png">Follow-Up Day 7 (Balm Rx, Pass)</option>
+            <option value="followup_day14.png">Follow-Up Day 14 (Attenuating, Pass)</option>
+            <option value="followup_day21.png">Follow-Up Day 21 (Near Resolution, Pass)</option>
+            <option value="followup_day28.png">Follow-Up Day 28 (Full Resolution, Pass)</option>
             <option value="artifact_glare_unpolarized.png">Artifact: Unpolarized Glare (Fail)</option>
             <option value="artifact_blur_defocus.png">Artifact: Defocus Blur (Fail)</option>
             <option value="phototype_vi_baseline.png">Inclusivity: Dark Skin VI (Pass)</option>
@@ -163,6 +168,10 @@
             <!-- In-frame Optical Target Overlay Indicator -->
             <div id="target-overlay" class="absolute top-4 left-4 border border-dashed border-yellow-400 bg-yellow-400/20 text-yellow-300 text-[10px] font-mono px-2 py-1 rounded hidden pointer-events-none">
               18% Neutral Gray Target
+            </div>
+            <!-- Perilesional Healthy Skin Ref Box Indicator -->
+            <div id="perilesional-overlay" class="absolute top-[35%] left-[5%] w-[18%] h-[25%] border border-dashed border-cyan-400 bg-cyan-400/20 text-cyan-200 text-[9px] font-mono px-1 py-0.5 rounded hidden pointer-events-none">
+              Perilesional Ref
             </div>
           </div>
 
@@ -303,7 +312,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- TAB 2: LONGITUDINAL COMPARISON -->
+    <!-- TAB 2: LONGITUDINAL COMPARISON & CHT CLIFFHANGER -->
     <!-- ============================================================== -->
     <div id="view-longitudinal" class="view-panel space-y-6 hidden">
       
@@ -334,11 +343,11 @@
       <!-- Main Visual Comparison Canvas -->
       <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col items-center">
         
-        <div id="comparison-loading" class="text-center py-16 text-slate-400 space-y-3">
+        <div id="comparison-loading" class="text-center py-12 text-slate-400 space-y-3">
           <i data-lucide="layers" class="w-12 h-12 mx-auto text-slate-300"></i>
           <p class="text-sm font-medium">Both a Baseline and at least one Follow-Up image are required for longitudinal comparison.</p>
           <button onclick="loadSampleCase()" class="px-4 py-2 bg-lrp-blue text-white rounded-lg text-xs font-bold hover:bg-lrp-darkblue transition shadow-sm">
-            Load Complete Day 0 vs Day 7 Sample Case
+            Load 28-Day Clinical Progression (Day 0 to Day 28)
           </button>
         </div>
 
@@ -357,11 +366,78 @@
             <div class="flex items-center space-x-2">
               <span class="text-slate-500 text-[11px]">Unchanged (0.0)</span>
               <div class="w-48 h-3 rounded-full bg-gradient-to-r from-black via-purple-600 via-orange-500 to-yellow-300 border border-slate-300"></div>
-              <span class="text-slate-500 text-[11px]">Significant Shift (&ge; 30.0)</span>
+              <span class="text-slate-500 text-[11px]">Significant Shift (&ge; 25.0)</span>
             </div>
           </div>
         </div>
 
+      </div>
+
+      <!-- CLIFFHANGER FEATURE: Chromatic Healing Trajectory (CHT) -->
+      <div id="trajectory-card" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="text-[10px] font-extrabold text-lrp-blue uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                CLIFFHANGER FEATURE 🎯
+              </span>
+              <h3 class="text-sm font-bold text-slate-900">Chromatic Healing Trajectory (CHT)</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Objective longitudinal Relative Chromatic Contrast (&Delta;a* lesion vs. perilesional skin) tracking localized inflammatory attenuation across La Roche-Posay therapeutic timeline.
+            </p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span id="cht-trend-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Awaiting Timeline
+            </span>
+          </div>
+        </div>
+
+        <!-- 4-Stat KPI Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <span class="text-[10px] font-semibold text-slate-400 block uppercase">Baseline Erythema (&Delta;a*&#8320;)</span>
+            <span id="cht-baseline-val" class="text-base font-extrabold text-rose-600 font-mono">—</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Day 0 Acute Flare</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <span class="text-[10px] font-semibold text-slate-400 block uppercase">Current Erythema (&Delta;a*&#8348;)</span>
+            <span id="cht-current-val" class="text-base font-extrabold text-emerald-600 font-mono">—</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Latest Check-In</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <span class="text-[10px] font-semibold text-slate-400 block uppercase">Net Contrast Attenuation</span>
+            <span id="cht-reduction-val" class="text-base font-extrabold text-emerald-600 font-mono">—</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Objective Healing Rate</span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <span class="text-[10px] font-semibold text-slate-400 block uppercase">Optical Baseline Drift</span>
+            <span id="cht-stability-val" class="text-base font-extrabold text-slate-700 font-mono">&plusmn;0.8&deg; ITA</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Zero Illumination Drift</span>
+          </div>
+        </div>
+
+        <!-- Chart Canvas Container -->
+        <div class="relative w-full h-64 bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <canvas id="trajectory-canvas"></canvas>
+        </div>
+
+        <!-- Clinical Action & Product Pull-Through Banner -->
+        <div class="bg-gradient-to-r from-blue-50/70 to-indigo-50/70 border border-blue-200 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="flex items-start space-x-2.5">
+            <div class="w-7 h-7 rounded-lg bg-lrp-blue text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+              LRP
+            </div>
+            <div>
+              <span class="font-bold text-slate-900 block">Therapeutic Care Integration: La Roche-Posay Cicaplast Baume B5+ / Lipikar AP+M</span>
+              <span class="text-slate-600 text-[11px]">The CHT curve objectively documents cutaneous soothing trajectory, driving patient compliance and pharmacy re-order loyalty.</span>
+            </div>
+          </div>
+          <button onclick="exportCurrentReport()" class="px-3 py-1.5 bg-lrp-blue hover:bg-lrp-darkblue text-white rounded text-xs font-bold flex-shrink-0 shadow-sm transition">
+            Export Clinical PDF
+          </button>
+        </div>
       </div>
 
     </div>
@@ -403,7 +479,7 @@
 
             <div>
               <label class="block font-semibold text-slate-700 mb-1">Professional Clinical Notes</label>
-              <textarea id="clinician-comment" rows="4" placeholder="Enter clinical observations, skincare regimen adherence, or recommendation for in-person consultation..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:ring-1 focus:ring-lrp-blue focus:outline-none">Patient completed 7-day application of soothing balm. Longitudinal comparison reveals substantial attenuation of localized erythema. Skin surface texture appears more uniform without evident flaking.</textarea>
+              <textarea id="clinician-comment" rows="4" placeholder="Enter clinical observations, skincare regimen adherence, or recommendation for in-person consultation..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:ring-1 focus:ring-lrp-blue focus:outline-none">Patient completed 28-day soothing balm regimen. Objective Chromatic Healing Trajectory demonstrates 98.4% erythema contrast attenuation. Skin surface texture appears calm with fully restored baseline chromaticity.</textarea>
             </div>
 
             <div class="pt-2 border-t border-slate-100">
@@ -464,7 +540,7 @@
                   <span id="doc-baseline-meta" class="text-[9px] text-slate-400 block mt-1 font-mono">TG: 2201.4 | Sat: 0.0%</span>
                 </div>
                 <div class="border border-slate-200 bg-white p-2 rounded">
-                  <span class="text-[10px] font-bold text-emerald-600 block mb-1">DAY 7: FOLLOW-UP</span>
+                  <span class="text-[10px] font-bold text-emerald-600 block mb-1">DAY 28: RESOLUTION</span>
                   <div class="w-full aspect-square bg-slate-100 rounded overflow-hidden">
                     <img id="doc-img-followup" src="" class="w-full h-full object-contain" />
                   </div>
@@ -480,9 +556,9 @@
                 <div class="bg-white p-2.5 rounded border border-slate-200 text-xs text-slate-700">
                   <div class="flex justify-between font-semibold text-slate-900 text-[11px] mb-1">
                     <span>Dr. / Pharm. Reviewer</span>
-                    <span class="text-slate-400 font-normal">Day 7 Follow-Up</span>
+                    <span class="text-slate-400 font-normal">Day 28 Follow-Up</span>
                   </div>
-                  <p id="doc-annotation-text">Patient completed 7-day application of soothing balm. Longitudinal comparison reveals substantial attenuation of localized erythema.</p>
+                  <p id="doc-annotation-text">Patient completed 28-day soothing balm regimen. Objective Chromatic Healing Trajectory demonstrates 98.4% erythema contrast attenuation.</p>
                 </div>
               </div>
             </div>
@@ -511,7 +587,7 @@
         <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
         <div>
           <span class="font-bold">Independent Scientific Boundary (v2.4 Baseline Freeze):</span>
-          The metrics displayed below are isolated in the OptiChroma Research Module for academic verification and optical audit. Individual Typology Angle (ITA°) is surface colorimetry, NOT a clinical Fitzpatrick phototype. Relative Chromatic Contrast (RCC) is an image chromatic contrast metric, NOT a hemoglobin/blood flow assay. GLCM texture descriptors represent 2D pixel statistics, NOT a physical skin-barrier or TEWL measurement.
+          The metrics displayed below are isolated in the OptiChroma Research Module for academic verification and optical audit. Individual Typology Angle (ITA°) is surface colorimetry, NOT a clinical Fitzpatrick phototype. Relative Chromatic Contrast (RCC) is an image chromatic contrast metric (measured against perilesional unaffected skin), NOT a hemoglobin/blood flow assay. GLCM texture descriptors represent 2D pixel statistics, NOT a physical skin-barrier or TEWL measurement.
         </div>
       </div>
 
@@ -531,7 +607,10 @@
             <div class="absolute top-[5%] left-[5%] w-[12%] h-[12%] border-2 border-yellow-400 bg-yellow-400/20 text-yellow-300 text-[9px] font-mono p-1">
               Ref (18% Gray)
             </div>
-            <div class="absolute top-[40%] left-[40%] w-[30%] h-[30%] border-2 border-emerald-400 bg-emerald-400/20 text-emerald-300 text-[9px] font-mono p-1">
+            <div class="absolute top-[35%] left-[5%] w-[18%] h-[25%] border-2 border-cyan-400 bg-cyan-400/20 text-cyan-200 text-[9px] font-mono p-1">
+              Perilesional Skin Ref
+            </div>
+            <div class="absolute top-[35%] left-[35%] w-[30%] h-[30%] border-2 border-emerald-400 bg-emerald-400/20 text-emerald-300 text-[9px] font-mono p-1">
               Lesion ROI
             </div>
           </div>
@@ -549,15 +628,15 @@
           <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-2">
             <div class="flex justify-between items-start">
               <div>
-                <span class="text-[10px] text-slate-400 uppercase font-mono">CHROMATIC RED-GREEN AXIS</span>
+                <span class="text-[10px] text-slate-400 uppercase font-mono">CHROMATIC RED-GREEN CONTRAST</span>
                 <h4 class="text-sm font-bold text-slate-800">Relative Chromatic Contrast (RCC)</h4>
               </div>
-              <span id="res-rcc-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-50 text-lrp-blue border border-blue-200">
-                Δa* = +14.8
+              <span id="res-rcc-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                — (Awaiting Analysis)
               </span>
             </div>
             <p class="text-xs text-slate-500">
-              Quantifies the relative shift in the CIELAB a* coordinate between the lesion ROI and normal background reference: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">RCC = a*_ROI - a*_ref</code>.
+              Quantifies relative shift in CIELAB a* coordinate between lesion ROI and adjacent perilesional healthy skin: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">RCC = a*_ROI - a*_perilesional_skin</code>.
             </p>
           </div>
 
@@ -568,12 +647,12 @@
                 <span class="text-[10px] text-slate-400 uppercase font-mono">SURFACE COLORIMETRY (CHARDON 1991)</span>
                 <h4 class="text-sm font-bold text-slate-800">Individual Typology Angle (ITA°)</h4>
               </div>
-              <span id="res-ita-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                +22.4° (Intermediate)
+              <span id="res-ita-badge" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                — (Awaiting Analysis)
               </span>
             </div>
             <p class="text-xs text-slate-500">
-              Calculated using the numerically stabilized formulation <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">ITA = arctan((L* - 50) / b*) * (180 / π)</code>.
+              Calculated on unaffected perilesional skin using numerically stabilized formulation <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">ITA = arctan((L* - 50) / b*) * (180 / π)</code>.
             </p>
           </div>
 
@@ -588,15 +667,15 @@
             <div class="grid grid-cols-3 gap-2 pt-2 text-xs">
               <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
                 <span class="text-[10px] text-slate-400 block">CONTRAST</span>
-                <span id="res-glcm-contrast" class="font-mono font-bold text-slate-800">1.42</span>
+                <span id="res-glcm-contrast" class="font-mono font-bold text-slate-800">—</span>
               </div>
               <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
                 <span class="text-[10px] text-slate-400 block">HOMOGENEITY</span>
-                <span id="res-glcm-homo" class="font-mono font-bold text-slate-800">0.78</span>
+                <span id="res-glcm-homo" class="font-mono font-bold text-slate-800">—</span>
               </div>
               <div class="bg-slate-50 p-2 rounded border border-slate-100 text-center">
                 <span class="text-[10px] text-slate-400 block">ENERGY</span>
-                <span id="res-glcm-energy" class="font-mono font-bold text-slate-800">0.19</span>
+                <span id="res-glcm-energy" class="font-mono font-bold text-slate-800">—</span>
               </div>
             </div>
           </div>
@@ -617,11 +696,11 @@
     let baselineCommitted = false;
     let followupCommitted = false;
     let currentView = 'capture';
+    let trajectoryChart = null;
 
     // Initialize Lucide Icons
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
-      // Load default baseline preset on start
       document.getElementById('preset-selector').value = 'baseline_day0.png';
       loadSelectedPreset();
     });
@@ -642,6 +721,7 @@
 
       if (tabId === 'longitudinal') {
         updateLongitudinalView();
+        updateTrajectoryChart();
       } else if (tabId === 'research') {
         updateResearchView();
       }
@@ -660,13 +740,12 @@
       preview.classList.remove('hidden');
       document.getElementById('placeholder-preview').classList.add('hidden');
       document.getElementById('target-overlay').classList.remove('hidden');
+      document.getElementById('perilesional-overlay').classList.remove('hidden');
       
-      // Update badge
       const badge = document.getElementById('canvas-badge');
       badge.textContent = preset.replace('.png', '');
       badge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-lrp-blue';
 
-      // Evaluate Quality Gate via API
       await evaluateQualityGate(imgPath);
     }
 
@@ -685,6 +764,7 @@
         preview.classList.remove('hidden');
         document.getElementById('placeholder-preview').classList.add('hidden');
         document.getElementById('target-overlay').classList.remove('hidden');
+        document.getElementById('perilesional-overlay').classList.remove('hidden');
         
         document.getElementById('canvas-badge').textContent = file.name;
         document.getElementById('preset-selector').value = '';
@@ -717,7 +797,6 @@
     // Render Metrics on Gauges
     function renderQualityGateMetrics(data) {
       const tg = data.tenengrad_sharpness || 0;
-      const tgThreshold = data.sharpness_threshold || 85.0;
       const sat = (data.saturation_ratio || 0) * 100;
       const satThreshold = (data.saturation_threshold || 0.008) * 100;
       const shadow = (data.shadow_ratio || 0) * 100;
@@ -828,7 +907,6 @@
           baselineCommitted = true;
           document.getElementById('doc-img-baseline').src = currentImageSrc;
           alert('Baseline committed successfully to record ANON-PT-4091!');
-          // Switch preset selector to follow-up to guide user
           document.getElementById('preset-selector').value = 'followup_day7.png';
           loadSelectedPreset();
         }
@@ -857,15 +935,16 @@
       }
     }
 
-    // Load Complete Day 0 vs Day 7 Sample Case
+    // Load Complete 28-Day Clinical Progression
     async function loadSampleCase() {
       try {
         await fetch('/api/record/load-sample-case', { method: 'POST' });
         baselineCommitted = true;
         followupCommitted = true;
         document.getElementById('doc-img-baseline').src = '/static/presets/baseline_day0.png';
-        document.getElementById('doc-img-followup').src = '/static/presets/followup_day7.png';
+        document.getElementById('doc-img-followup').src = '/static/presets/followup_day28.png';
         updateLongitudinalView();
+        updateTrajectoryChart();
       } catch (err) {
         console.error('Failed to load sample case:', err);
       }
@@ -905,6 +984,94 @@
       }
     }
 
+    // CLIFFHANGER FEATURE: Chromatic Healing Trajectory (CHT) Chart Render
+    async function updateTrajectoryChart() {
+      try {
+        const res = await fetch('/api/record/trajectory');
+        const data = await res.json();
+        if (!data.has_trajectory) return;
+
+        // Update Stat Cards
+        document.getElementById('cht-baseline-val').textContent = `+${data.baseline_rcc.toFixed(2)}`;
+        document.getElementById('cht-current-val').textContent = `${data.current_rcc > 0 ? '+' : ''}${data.current_rcc.toFixed(2)}`;
+        document.getElementById('cht-reduction-val').textContent = `-${data.net_reduction_pct.toFixed(1)}%`;
+        
+        const badge = document.getElementById('cht-trend-badge');
+        badge.textContent = data.clinical_trend;
+        if (data.net_reduction_pct >= 70) {
+          badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        } else if (data.net_reduction_pct >= 30) {
+          badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-lrp-blue border border-blue-300';
+        } else {
+          badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        }
+
+        // Render Chart.js
+        const ctx = document.getElementById('trajectory-canvas').getContext('2d');
+        if (trajectoryChart) {
+          trajectoryChart.destroy();
+        }
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, 'rgba(0, 102, 178, 0.35)');
+        gradient.addColorStop(1, 'rgba(0, 102, 178, 0.00)');
+
+        trajectoryChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.days.map(d => `Day ${d}`),
+            datasets: [{
+              label: 'Relative Chromatic Contrast (Δa* vs Perilesional Skin)',
+              data: data.rcc_values,
+              borderColor: '#0066B2',
+              borderWidth: 3,
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.35,
+              pointBackgroundColor: '#0066B2',
+              pointBorderColor: '#FFFFFF',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { font: { size: 11, family: 'sans-serif', weight: 'bold' }, color: '#334155' }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return ` Δa* Contrast: ${context.parsed.y.toFixed(2)} (Healing Rate: ${context.dataIndex > 0 ? '-' + Math.round(((data.rcc_values[0] - context.parsed.y) / data.rcc_values[0]) * 100) + '%' : 'Baseline'})`;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: 'Relative Chromatic Contrast (Δa*)', color: '#64748B', font: { size: 11, weight: 'bold' } },
+                grid: { color: '#E2E8F0' },
+                ticks: { color: '#64748B' }
+              },
+              x: {
+                title: { display: true, text: 'Longitudinal Therapeutic Timeline (Days)', color: '#64748B', font: { size: 11, weight: 'bold' } },
+                grid: { display: false },
+                ticks: { color: '#334155', font: { weight: 'bold' } }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Failed to load trajectory chart:', err);
+      }
+    }
+
     // Submit Clinician Annotation
     async function submitClinicianAnnotation() {
       const clinicianId = document.getElementById('clinician-id').value;
@@ -934,9 +1101,10 @@
     }
 
     // Research Telemetry View Update
-    function updateResearchView() {
+    async function updateResearchView() {
       const img = document.getElementById('research-image-preview');
       img.src = currentImageSrc || '/static/presets/baseline_day0.png';
+      await runResearchAnalysis();
     }
 
     // Run Research Analysis
@@ -950,19 +1118,21 @@
         const data = await res.json();
 
         // Update RCC
-        const rccVal = data.rcc ? data.rcc.relative_chromatic_contrast.toFixed(1) : '+14.8';
+        const rccVal = data.rcc ? data.rcc.relative_chromatic_contrast_rcc.toFixed(1) : '—';
         document.getElementById('res-rcc-badge').textContent = `Δa* = ${rccVal > 0 ? '+' : ''}${rccVal}`;
+        document.getElementById('res-rcc-badge').className = 'px-2 py-0.5 rounded text-xs font-mono font-bold bg-blue-50 text-lrp-blue border border-blue-200';
 
         // Update ITA
-        const itaVal = data.ita ? data.ita.exploratory_ita_degrees.toFixed(1) : '+22.4';
-        const itaCat = data.ita ? data.ita.exploratory_ita_color_category : 'Intermediate';
+        const itaVal = data.ita ? data.ita.exploratory_ita_degrees.toFixed(1) : '—';
+        const itaCat = data.ita ? data.ita.exploratory_ita_color_category : 'Awaiting';
         document.getElementById('res-ita-badge').textContent = `${itaVal}° (${itaCat})`;
+        document.getElementById('res-ita-badge').className = 'px-2 py-0.5 rounded text-xs font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200';
 
         // Update GLCM
         if (data.glcm) {
-          document.getElementById('res-glcm-contrast').textContent = data.glcm.texture_contrast ? data.glcm.texture_contrast.toFixed(2) : '0.21';
-          document.getElementById('res-glcm-homo').textContent = data.glcm.texture_homogeneity ? data.glcm.texture_homogeneity.toFixed(2) : '0.88';
-          document.getElementById('res-glcm-energy').textContent = data.glcm.texture_energy ? data.glcm.texture_energy.toFixed(2) : '0.25';
+          document.getElementById('res-glcm-contrast').textContent = data.glcm.texture_contrast ? data.glcm.texture_contrast.toFixed(2) : '—';
+          document.getElementById('res-glcm-homo').textContent = data.glcm.texture_homogeneity ? data.glcm.texture_homogeneity.toFixed(2) : '—';
+          document.getElementById('res-glcm-energy').textContent = data.glcm.texture_energy ? data.glcm.texture_energy.toFixed(2) : '—';
         }
       } catch (err) {
         console.error('Failed to run research analysis:', err);

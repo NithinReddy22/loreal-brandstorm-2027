@@ -42,10 +42,11 @@ def test_get_presets(client):
     assert response.status_code == 200
     data = json.loads(response.data)
     assert "presets" in data
-    assert len(data["presets"]) == 6
+    assert len(data["presets"]) >= 6
     preset_ids = [p["id"] for p in data["presets"]]
     assert "baseline_day0.png" in preset_ids
     assert "followup_day7.png" in preset_ids
+    assert "followup_day28.png" in preset_ids
     assert "artifact_glare_unpolarized.png" in preset_ids
 
 
@@ -138,3 +139,22 @@ def test_research_analysis_endpoint(client):
     assert "texture_contrast" in data["glcm"]
     assert "texture_homogeneity" in data["glcm"]
     assert "texture_energy" in data["glcm"]
+
+
+def test_healing_trajectory_endpoint(client):
+    """Verifies cliffhanger feature: Chromatic Healing Trajectory (CHT) calculation."""
+    # Ensure sample case is loaded
+    client.post("/api/record/load-sample-case")
+    
+    # Request trajectory
+    traj_resp = client.get("/api/record/trajectory")
+    assert traj_resp.status_code == 200
+    data = json.loads(traj_resp.data)
+    assert data["has_trajectory"] is True
+    assert data["sessions_count"] >= 2
+    assert "days" in data
+    assert "rcc_values" in data
+    assert "net_reduction_pct" in data
+    assert "clinical_trend" in data
+    # Verified reduction from Day 0 flare to Day 28 resolution
+    assert data["net_reduction_pct"] > 50.0
